@@ -16,7 +16,7 @@ const ConfirmationCode = () => {
  
     try {
       const response = await fetch(
-        "https://xisobchiai.admob.uz/api/v1/opt/" + localStorage.getItem("obunaPay"),
+        "https://xisobchiai2.admob.uz/api/v1/opt/" + localStorage.getItem("obunaPay"),
         {
           method: "POST",
           headers: {

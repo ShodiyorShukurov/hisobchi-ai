@@ -59,7 +59,7 @@ const ObunaPay = () => {
 
     try {
       const response = await fetch(
-        "https://xisobchiai.admob.uz/api/v1/add-card/" +
+        "https://xisobchiai2.admob.uz/api/v1/add-card/" +
           localStorage.getItem("obunaPay"),
         {
           method: "POST",
