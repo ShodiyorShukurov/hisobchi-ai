@@ -1,9 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Input, notification } from 'antd';
 import MaskedInput from 'react-text-mask';
 import '../CardData/ObunaPay.css';
 
 const ConfirmationCode = () => {
+  const [code, setCode] = useState('');
+
   const openNotificationWithIcon = (type, message) => {
     notification[type]({
       message: type,
@@ -12,37 +14,36 @@ const ConfirmationCode = () => {
   };
 
   const handleConfirm = async (code) => {
-    console.log(code)
-    // try {
-    //   const response = await fetch(
-    //     'https://xisobchiai2.admob.uz/api/v1/opt/' +
-    //       localStorage.getItem('obunaPay'),
-    //     {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //       body: JSON.stringify({
-    //         code: code,
-    //         transaction_id: localStorage.getItem('transaction_id'),
-    //       }),
-    //     }
-    //   );
+    try {
+      const response = await fetch(
+        'https://xisobchiai2.admob.uz/api/v1/opt/' +
+          localStorage.getItem('obunaPay'),
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            code: code,
+            transaction_id: localStorage.getItem('transaction_id'),
+          }),
+        }
+      );
 
-    //   const data = await response.json();
+      const data = await response.json();
 
-    //   if (data.status == 200) {
-    //     window.Telegram.WebApp.close();
-    //   } else {
-    //     openNotificationWithIcon('error', 'Boshqa kartani kiriting!');
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    //   openNotificationWithIcon(
-    //     'error',
-    //     "Xatolik yuz berdi, qayta urinib ko'ring!"
-    //   );
-    // }
+      if (data.status == 200) {
+        window.Telegram.WebApp.close();
+      } else {
+        openNotificationWithIcon('error', 'Boshqa kartani kiriting!');
+      }
+    } catch (error) {
+      console.log(error);
+      openNotificationWithIcon(
+        'error',
+        "Xatolik yuz berdi, qayta urinib ko'ring!"
+      );
+    }
   };
 
   const validateCode = (code) => {
@@ -53,14 +54,6 @@ const ConfirmationCode = () => {
     console.log('onChange:', text);
   };
 
-  const onInput = (value) => {
-    console.log('onInput:', value);
-  };
-
-  const sharedProps = {
-    onChange,
-    onInput,
-  };
 
   useEffect(() => {
     if (window.Telegram) {
@@ -93,10 +86,10 @@ const ConfirmationCode = () => {
       </h1>
       <form>
         <Input.OTP
-          id="code"
           className="custom-otp-input"
           formatter={(str) => str.toUpperCase()}
-          {...sharedProps}
+          value={code}
+          onChange={(val) => setCode(val)} 
         />
       </form>
 
