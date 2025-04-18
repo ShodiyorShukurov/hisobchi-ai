@@ -15,36 +15,36 @@ const ConfirmationCode = () => {
   const handleConfirm = async (code) => {
     console.log("ishladi")
     console.log("code", code)
-    // try {
-    //   const response = await fetch(
-    //     'https://xisobchiai2.admob.uz/api/v1/opt/' +
-    //       localStorage.getItem('obunaPay'),
-    //     {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //       body: JSON.stringify({
-    //         code: code,
-    //         transaction_id: localStorage.getItem('transaction_id'),
-    //       }),
-    //     }
-    //   );
+    try {
+      const response = await fetch(
+        'https://xisobchiai2.admob.uz/api/v1/opt/' +
+          localStorage.getItem('obunaPay'),
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            code: code,
+            transaction_id: localStorage.getItem('transaction_id'),
+          }),
+        }
+      );
 
-    //   const data = await response.json();
+      const data = await response.json();
 
-    //   if (data.status === 200) {
-    //     window.Telegram.WebApp.close();
-    //   } else {
-    //     openNotificationWithIcon('error', 'Boshqa kartani kiriting!');
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    //   openNotificationWithIcon(
-    //     'error',
-    //     "Xatolik yuz berdi, qayta urinib ko'ring!"
-    //   );
-    // }
+      if (data.status === 200) {
+        window.Telegram.WebApp.close();
+      } else {
+        openNotificationWithIcon('error', 'Boshqa kartani kiriting!');
+      }
+    } catch (error) {
+      console.log(error);
+      openNotificationWithIcon(
+        'error',
+        "Xatolik yuz berdi, qayta urinib ko'ring!"
+      );
+    }
   };
 
   const validateCode = (code) => {
