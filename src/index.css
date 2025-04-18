@@ -74,7 +74,58 @@ a {
 
 .ant-otp {
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
+  margin: 0 auto;
   align-items: center !important;
-  /* gap: 8px; */
+  gap: 4px;
+}
+
+.padding {
+  padding-top: 36px;
+}
+
+.images {
+  width: 100%;
+  /* display: flex;
+  margin: 0 auto; */
+  margin-top: 24px;
+  /* gap:27px; */
+}
+
+.logo {
+  margin-right: 27px;
+}
+
+.help {
+  margin-top: 13px;
+  text-align: center;
+}
+
+span {
+  color: #006ffd;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 100%;
+  margin-left: 8px;
+}
+
+.sms {
+  display: flex;
+  align-items: center;
+  /* justify-content: center; */
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.button {
+  cursor: pointer;
+  border-radius: 12px;
+  margin-top: 32px;
+  border: none;
+  background-color: #006ffd;
+  padding: 12px 24px;
+  color: #fff;
+  font-size: 14px;
+  line-height: 100%;
+  font-weight: 600;
 }

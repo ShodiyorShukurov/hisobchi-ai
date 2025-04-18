@@ -3,6 +3,8 @@ import MaskedInput from 'react-text-mask';
 import { notification } from 'antd';
 import './ObunaPay.css';
 import { useNavigate, useParams } from 'react-router-dom';
+import logo from '../../assets/hisobchi.svg';
+import atmos from '../../assets/atmos.svg';
 
 const ObunaPay = () => {
   const { id } = useParams();
@@ -10,7 +12,7 @@ const ObunaPay = () => {
   const navigate = useNavigate();
 
   const validateCardNumber = (value) => {
-    return value && value.length === 16; // Karta raqami 19 belgidan iborat bo'lishi kerak
+    return value && value.length === 16;
   };
 
   const validateExpiryDate = (value) => {
@@ -49,12 +51,14 @@ const ObunaPay = () => {
     if (!validateForm()) {
       return;
     }
+    window.Telegram.WebApp.MainButton.disable();
 
     const cardNumber = document
       .querySelector('.card-number')
       .value.replace(/[^0-9]/g, '');
     const expiryDate = document.querySelector('.card-expiry').value;
-
+    localStorage.setItem('expiryDate', expiryDate);
+    localStorage.setItem('cardNumber', cardNumber);
     try {
       const response = await fetch(
         'https://xisobchiai2.admob.uz/api/v1/add-card/' +
@@ -94,6 +98,8 @@ const ObunaPay = () => {
         message: 'Xatolik',
         description: 'Iltimos, boshqa karta kiriting!',
       });
+    } finally {
+      window.Telegram.WebApp.MainButton.enable();
     }
   };
 
@@ -117,7 +123,9 @@ const ObunaPay = () => {
   return (
     <div className="container">
       <div className="form-section">
-        <h1 className="title">Bank kartasi ma&apos;lumotlarini kiriting</h1>
+        <h1 className="title padding">
+          Bank kartasi ma&apos;lumotlarini kiriting
+        </h1>
         <form>
           <MaskedInput
             mask={[
@@ -155,18 +163,26 @@ const ObunaPay = () => {
       </div>
       <h2>Eslatmalar</h2>
       <p>
-        To&apos;lovlar faqatgina UzCard va Humo kartalari orqali amalga
+        - To&apos;lovlar faqatgina UzCard va Humo kartalari orqali amalga
         oshiriladi.
       </p>
 
-      <p className='medium'>
-        Xavfsizlik maqsadida sizning bank kartangiz ma&apos;lumotlari PayMe
-        xizmatining serverlarida saqlanadi.
+      <p className="medium">
+        - Xavfsizlik maqsadida sizning bank kartangiz ma&apos;lumotlari Atmos
+        to'lov tizimida saqlanadi.
       </p>
+
       <p>
-        Obuna xizmati sizning shaxsingizga oid hech qanday ma&apos;lumot
-        saqlamaydi.
+        - Yillik tarif harid qilinganda, karta ma'lumotlarini kiritish talab
+        etilmaydi.
       </p>
+
+      <div className="images">
+        <img className="logo" src={logo} alt="logo" width={80} height={80} />
+        <img src={atmos} alt="atmos" width={80} height={80} />
+      </div>
+
+      <p className="help">Qo’llab-quvvatlovchilar kompaniyalar</p>
     </div>
   );
 };

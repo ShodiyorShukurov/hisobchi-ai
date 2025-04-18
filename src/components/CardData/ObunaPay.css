@@ -15,7 +15,7 @@ body {
   font-size: 20px;
   line-height: 100%;
   font-weight: 800;
-  margin: 16px 0;
+  margin-bottom: 16px;
   text-align: left;
 }
 
@@ -34,6 +34,10 @@ input {
   outline: none;
 }
 
+input::placeholder{
+  color:#71727A;
+}
+
 .card-number {
   width: 100%;
 }
@@ -42,7 +46,7 @@ h2 {
   margin-top: 32px;
   margin-bottom: 10px;
   color: #71727A;
-  font-size: 18px;
+  font-size: 16px;
   text-align: left;
   font-weight: 600;
   line-height: 100%;
@@ -50,7 +54,7 @@ h2 {
 
 p{
   color: #71727A;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 16px;
   text-align: left;
 }
@@ -123,3 +127,4 @@ p{
     transform: rotate(360deg);
   }
 }
+
