@@ -82,6 +82,11 @@ const ConfirmationCode = () => {
   };
 
   const handleConfirm = async (code) => {
+    const MainButton = window.Telegram.WebApp.MainButton;
+
+    MainButton.showProgress();
+    MainButton.disable();
+
     try {
       const response = await fetch(
         'https://xisobchiai2.admob.uz/api/v1/opt/' +
@@ -111,6 +116,9 @@ const ConfirmationCode = () => {
         'error',
         "Xatolik yuz berdi, qayta urinib ko'ring!"
       );
+    } finally {
+      MainButton.hideProgress();
+      MainButton.enable();
     }
   };
 
@@ -128,7 +136,7 @@ const ConfirmationCode = () => {
         if (validateCode(code)) {
           handleConfirm(code);
         } else {
-          message.error(  
+          message.error(
             'Iltimos telefon raqamingizga borgan 6 xonali kodni kiriting!'
           );
         }
