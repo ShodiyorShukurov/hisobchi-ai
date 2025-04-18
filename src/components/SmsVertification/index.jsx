@@ -8,9 +8,8 @@ import { NavLink } from 'react-router-dom';
 
 const ConfirmationCode = () => {
   const [code, setCode] = useState('');
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(120);
   const [showResend, setShowResend] = useState(false);
-  const [isLoading, seIsLoading] = useState(false);
 
   useEffect(() => {
     if (timeLeft === 0) {
@@ -32,7 +31,10 @@ const ConfirmationCode = () => {
   };
 
   const resendCode = async () => {
-    window.Telegram.WebApp.MainButton.disable();
+    const MainButton = window.Telegram.WebApp.MainButton;
+
+    MainButton.showProgress();
+    MainButton.disable();
 
     try {
       const response = await fetch(
@@ -53,10 +55,11 @@ const ConfirmationCode = () => {
       const data = await response.json();
 
       if (data.status == 400) {
-        notification.error({
-          message: 'Xatolik',
-          description: 'Iltimos, nomerga ulangan kartani kiriting!',
-        });
+        // notification.error({
+        //   message: 'Xatolik',
+        //   description: 'Iltimos, nomerga ulangan kartani kiriting!',
+        // });
+        console.log(data);
       } else if (data.status == 200) {
         localStorage.setItem('transaction_id', data.transaction_id);
         localStorage.setItem('phone', data.phone);
@@ -69,12 +72,13 @@ const ConfirmationCode = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      notification.error({
-        message: 'Xatolik',
-        description: 'Iltimos, boshqa karta kiriting!',
-      });
+      // notification.error({
+      //   message: 'Xatolik',
+      //   description: 'Iltimos, boshqa karta kiriting!',
+      // });
     } finally {
-      window.Telegram.WebApp.MainButton.enable();
+      MainButton.hideProgress();
+      MainButton.enable();
     }
     setTimeLeft(120);
     setShowResend(false);

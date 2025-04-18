@@ -16,7 +16,7 @@ const ObunaPay = () => {
   };
 
   const validateExpiryDate = (value) => {
-    return value && /^(0[1-9]|1[0-2])\/(\d{2})$/.test(value); // MM/YY formatida
+    return value && /^(0[1-9]|1[0-2])\/(\d{2})$/.test(value);
   };
 
   const validateForm = () => {
@@ -35,7 +35,6 @@ const ObunaPay = () => {
       });
     }
 
-    console.log('cardValid:' + expiryValid);
     if (!expiryValid) {
       notification.error({
         message: 'Xatolik',
@@ -51,7 +50,10 @@ const ObunaPay = () => {
     if (!validateForm()) {
       return;
     }
-    window.Telegram.WebApp.MainButton.disable();
+    const MainButton = window.Telegram.WebApp.MainButton;
+
+    MainButton.showProgress();
+    MainButton.disable();
 
     const cardNumber = document
       .querySelector('.card-number')
@@ -99,7 +101,8 @@ const ObunaPay = () => {
         description: 'Iltimos, boshqa karta kiriting!',
       });
     } finally {
-      window.Telegram.WebApp.MainButton.enable();
+      MainButton.hideProgress();
+      MainButton.enable();
     }
   };
 
