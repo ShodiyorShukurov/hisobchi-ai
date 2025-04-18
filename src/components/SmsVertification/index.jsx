@@ -59,13 +59,13 @@ const ConfirmationCode = () => {
       } else if (data.status == 200) {
         localStorage.setItem('transaction_id', data.transaction_id);
         localStorage.setItem('phone', data.phone);
-        navigate('/sms-verification');
+        // navigate('/sms-verification');
       } else if (data.description == 'У партнера имеется указанная карта') {
         message.error("Bu karta oldin qo'shilgan boshqa karta kiriting!");
       }
     } catch (error) {
       console.error('Error:', error);
-      message.error('Iltimos, boshqa karta kiriting!');
+      // message.error('Iltimos, boshqa karta kiriting!');
     } finally {
       MainButton.hideProgress();
       MainButton.enable();
