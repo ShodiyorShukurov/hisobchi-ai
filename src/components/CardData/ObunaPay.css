@@ -5,48 +5,64 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Inter', sans-serif;
   background-color: #fff;
   color: #000;
 }
 
-.form-section h1 {
-  font-size: 18px;
-  margin: 20px 0;
+.title {
+  color: #1f2024;
+  font-size: 16px;
+  line-height: 100%;
+  font-weight: 800;
+  margin: 16px 0;
+  text-align: left;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 8px;
 }
 
 input {
-  padding: 20px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 16px;
+  font-size: 12px;
+  line-height: 16px;
+  border: 0.5px solid #c5c6cc;
+  border-radius: 12px;
+  outline: none;
 }
 
 .card-number {
   width: 100%;
 }
 
+h2 {
+  margin-top: 32px;
+  margin-bottom: 10px;
+  color: #1f2024;
+  font-size: 14px;
+  text-align: left;
+  font-weight: 600;
+  line-height: 100%;
+}
+
+p{
+  color: #71727A;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: left;
+}
+
+.medium{
+  margin: 10px 0;
+}
+
 .card-expiry {
   width: 100%;
 }
 
-.form-section p {
-  font-size: 14px;
-  text-align: center;
-  color: #666;
-}
-
-.security-info {
-  margin-top: 20px;
-  font-size: 12px;
-  color: #666;
-}
 
 .security-info a {
   color: #007bff;

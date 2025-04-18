@@ -1,12 +1,12 @@
-import { useEffect } from "react";
-import MaskedInput from "react-text-mask";
-import { notification } from "antd";
-import "./ObunaPay.css";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from 'react';
+import MaskedInput from 'react-text-mask';
+import { notification } from 'antd';
+import './ObunaPay.css';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const ObunaPay = () => {
   const { id } = useParams();
-  localStorage.setItem("obunaPay", id);
+  localStorage.setItem('obunaPay', id);
   const navigate = useNavigate();
 
   const validateCardNumber = (value) => {
@@ -19,24 +19,24 @@ const ObunaPay = () => {
 
   const validateForm = () => {
     const cardNumber = document
-      .querySelector(".card-number")
-      .value.replace(/[^0-9]/g, "");
-    const expiryDate = document.querySelector(".card-expiry").value;
+      .querySelector('.card-number')
+      .value.replace(/[^0-9]/g, '');
+    const expiryDate = document.querySelector('.card-expiry').value;
 
     const cardValid = validateCardNumber(cardNumber);
     const expiryValid = validateExpiryDate(expiryDate);
 
     if (!cardValid) {
       notification.error({
-        message: "Xatolik",
+        message: 'Xatolik',
         description: "Karta raqamini to'g'ri kiriting!",
       });
     }
 
-    console.log("cardValid:" + expiryValid);
+    console.log('cardValid:' + expiryValid);
     if (!expiryValid) {
       notification.error({
-        message: "Xatolik",
+        message: 'Xatolik',
         description:
           "Kartangizning amal qilish muddatini to'g'ri kiriting! (MM/YY formatida)",
       });
@@ -46,25 +46,23 @@ const ObunaPay = () => {
   };
 
   const handleSubmit = async () => {
-
     if (!validateForm()) {
       return;
     }
 
     const cardNumber = document
-      .querySelector(".card-number")
-      .value.replace(/[^0-9]/g, "");
-    const expiryDate = document.querySelector(".card-expiry").value;
-
+      .querySelector('.card-number')
+      .value.replace(/[^0-9]/g, '');
+    const expiryDate = document.querySelector('.card-expiry').value;
 
     try {
       const response = await fetch(
-        "https://xisobchiai2.admob.uz/api/v1/add-card/" +
-          localStorage.getItem("obunaPay"),
+        'https://xisobchiai2.admob.uz/api/v1/add-card/' +
+          localStorage.getItem('obunaPay'),
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             card_number: cardNumber,
@@ -77,36 +75,36 @@ const ObunaPay = () => {
 
       if (data.status == 400) {
         notification.error({
-          message: "Xatolik",
-          description: "Iltimos, nomerga ulangan kartani kiriting!",
+          message: 'Xatolik',
+          description: 'Iltimos, nomerga ulangan kartani kiriting!',
         });
       } else if (data.status == 200) {
-        localStorage.setItem("transaction_id", data.transaction_id);
-        localStorage.setItem("phone", data.phone);
-        navigate("/sms-verification");
-      } else if (data.description == "У партнера имеется указанная карта") {
+        localStorage.setItem('transaction_id', data.transaction_id);
+        localStorage.setItem('phone', data.phone);
+        navigate('/sms-verification');
+      } else if (data.description == 'У партнера имеется указанная карта') {
         notification.error({
-          message: "Xatolik",
+          message: 'Xatolik',
           description: "Bu karta oldin qo'shilgan boshqa karta kiriting!",
         });
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error('Error:', error);
       notification.error({
-        message: "Xatolik",
-        description: "Iltimos, boshqa karta kiriting!",
+        message: 'Xatolik',
+        description: 'Iltimos, boshqa karta kiriting!',
       });
     }
   };
 
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.MainButton.setText("Tasdiqlash").show().setAtribut;
+      window.Telegram.WebApp.MainButton.setText('Tasdiqlash').show().setAtribut;
       window.Telegram.WebApp.MainButton.onClick(() => {
         handleSubmit();
       });
     } else {
-      console.log("Telegram WebApp SDK yuklanmagan");
+      console.log('Telegram WebApp SDK yuklanmagan');
     }
 
     return () => {
@@ -119,7 +117,7 @@ const ObunaPay = () => {
   return (
     <div className="container">
       <div className="form-section">
-        <h1>Bank kartasi ma&apos;lumotlarini kiriting</h1>
+        <h1 className="title">Bank kartasi ma&apos;lumotlarini kiriting</h1>
         <form>
           <MaskedInput
             mask={[
@@ -127,17 +125,17 @@ const ObunaPay = () => {
               /\d/,
               /\d/,
               /\d/,
-              " ",
+              ' ',
               /\d/,
               /\d/,
               /\d/,
               /\d/,
-              " ",
+              ' ',
               /\d/,
               /\d/,
               /\d/,
               /\d/,
-              " ",
+              ' ',
               /\d/,
               /\d/,
               /\d/,
@@ -148,28 +146,27 @@ const ObunaPay = () => {
             required
           />
           <MaskedInput
-            mask={[/\d/, /\d/, "/", /\d/, /\d/]}
+            mask={[/\d/, /\d/, '/', /\d/, /\d/]}
             className="card-expiry"
             placeholder="MM/YY"
             required
           />
-          <p>
-            To&apos;lovlar faqatgina UzCard va Humo kartalari orqali amalga
-            oshiriladi.
-          </p>
         </form>
       </div>
+      <h2>Eslatmalar</h2>
+      <p>
+        To&apos;lovlar faqatgina UzCard va Humo kartalari orqali amalga
+        oshiriladi.
+      </p>
 
-      <div className="security-info">
-        <p>
-          Xavfsizlik maqsadida sizning bank kartangiz ma&apos;lumotlari PayMe
-          xizmatining serverlarida saqlanadi.
-        </p>
-        <p>
-          Obuna xizmati sizning shaxsingizga oid hech qanday ma&apos;lumot
-          saqlamaydi.
-        </p>
-      </div>
+      <p className='medium'>
+        Xavfsizlik maqsadida sizning bank kartangiz ma&apos;lumotlari PayMe
+        xizmatining serverlarida saqlanadi.
+      </p>
+      <p>
+        Obuna xizmati sizning shaxsingizga oid hech qanday ma&apos;lumot
+        saqlamaydi.
+      </p>
     </div>
   );
 };
