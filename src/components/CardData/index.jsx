@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import MaskedInput from 'react-text-mask';
-import { notification } from 'antd';
+import { message, notification } from 'antd';
 import './ObunaPay.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import logo from '../../assets/hisobchi.svg';
@@ -80,26 +80,17 @@ const ObunaPay = () => {
       const data = await response.json();
 
       if (data.status == 400) {
-        notification.error({
-          message: 'Xatolik',
-          description: 'Iltimos, nomerga ulangan kartani kiriting!',
-        });
+        message.error('Iltimos, nomerga ulangan kartani kiriting!');
       } else if (data.status == 200) {
         localStorage.setItem('transaction_id', data.transaction_id);
         localStorage.setItem('phone', data.phone);
         navigate('/sms-verification');
       } else if (data.description == 'У партнера имеется указанная карта') {
-        notification.error({
-          message: 'Xatolik',
-          description: "Bu karta oldin qo'shilgan boshqa karta kiriting!",
-        });
+        message.error("Bu karta oldin qo'shilgan boshqa karta kiriting!");
       }
     } catch (error) {
       console.error('Error:', error);
-      notification.error({
-        message: 'Xatolik',
-        description: 'Iltimos, boshqa karta kiriting!',
-      });
+      message.error('Iltimos, boshqa karta kiriting!');
     } finally {
       MainButton.hideProgress();
       MainButton.enable();

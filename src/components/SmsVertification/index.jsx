@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Input, notification } from 'antd';
+import { Input, message, notification } from 'antd';
 import '../CardData/ObunaPay.css';
 import logo from '../../assets/hisobchi.svg';
 import atmos from '../../assets/atmos.svg';
@@ -55,27 +55,17 @@ const ConfirmationCode = () => {
       const data = await response.json();
 
       if (data.status == 400) {
-        // notification.error({
-        //   message: 'Xatolik',
-        //   description: 'Iltimos, nomerga ulangan kartani kiriting!',
-        // });
-        console.log(data);
+        message.error('Iltimos, nomerga ulangan kartani kiriting!');
       } else if (data.status == 200) {
         localStorage.setItem('transaction_id', data.transaction_id);
         localStorage.setItem('phone', data.phone);
         navigate('/sms-verification');
       } else if (data.description == 'У партнера имеется указанная карта') {
-        notification.error({
-          message: 'Xatolik',
-          description: "Bu karta oldin qo'shilgan boshqa karta kiriting!",
-        });
+        message.error("Bu karta oldin qo'shilgan boshqa karta kiriting!");
       }
     } catch (error) {
       console.error('Error:', error);
-      // notification.error({
-      //   message: 'Xatolik',
-      //   description: 'Iltimos, boshqa karta kiriting!',
-      // });
+      message.error('Iltimos, boshqa karta kiriting!');
     } finally {
       MainButton.hideProgress();
       MainButton.enable();
@@ -138,11 +128,9 @@ const ConfirmationCode = () => {
         if (validateCode(code)) {
           handleConfirm(code);
         } else {
-          notification.error({
-            message: 'Xatolik',
-            description:
-              'Iltimos telefon raqamingizga borgan 6 xonali kodni kiriting!',
-          });
+          message.error(  
+            'Iltimos telefon raqamingizga borgan 6 xonali kodni kiriting!'
+          );
         }
       };
 
