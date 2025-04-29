@@ -181,23 +181,34 @@ const ConfirmationCode = () => {
       )}
 
       <div className="images">
-        <img className="logo" src={logo} alt="logo" width={80} height={80} />
-        <img src={atmos} alt="atmos" width={80} height={80} />
+        <img
+          className="logo transparent"
+          src={logo}
+          alt="logo"
+          width={80}
+          height={80}
+        />
+        <img
+          className="transparent"
+          src={atmos}
+          alt="atmos"
+          width={80}
+          height={80}
+        />
       </div>
 
-      <p className="help">Qo’llab-quvvatlovchilar kompaniyalar</p>
+      <p className="help transparent">
+        To'lov operatori: <a href="https://atmos.uz">Atmos.uz</a> to'lov tizimi
+      </p>
 
       <h2>Eslatmalar</h2>
-      <p>
-        - To&apos;lovlar faqatgina UzCard va Humo kartalari orqali amalga
-        oshiriladi.
-      </p>
+      <p>- To'lov UzCard va Humo kartalari orqali amalga oshiriladi.</p>
 
       <p className="medium">
-        - Xavfsizlik maqsadida sizning bank kartangiz ma&apos;lumotlari Atmos
-        to'lov tizimida saqlanadi.
+        - Karta ma'lumotlari Atmos to'lov tizimida xavfsiz saqlanadi. To'lovlar
+        haqqoniyligi kafolatlanadi.{' '}
+        <a href="https://atmos.uz/documents">Oferta</a>
       </p>
-
       <p>
         - Yillik tarif harid qilinganda, karta ma'lumotlarini kiritish talab
         etilmaydi.
