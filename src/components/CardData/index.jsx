@@ -161,7 +161,7 @@ const ObunaPay = () => {
       <p className="medium">
         - Karta ma'lumotlari Atmos to'lov tizimida xavfsiz saqlanadi. To'lovlar
         haqqoniyligi kafolatlanadi.{' '}
-        <a href="https://atmos.uz/documents">Oferta</a>
+        <a href="https://atmos.uz/documents" target='_blank'>Oferta</a>
       </p>
       <p>
         - Yillik tarif harid qilinganda, karta ma'lumotlarini kiritish talab
@@ -186,7 +186,7 @@ const ObunaPay = () => {
       </div>
 
       <p className="help transparent">
-        To'lov operatori: <a href="https://atmos.uz">Atmos.uz</a> to'lov tizimi
+        To'lov operatori: <a href="https://atmos.uz" target='_blank'>Atmos.uz</a> to'lov tizimi
       </p>
     </div>
   );
