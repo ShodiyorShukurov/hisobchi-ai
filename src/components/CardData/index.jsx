@@ -146,12 +146,14 @@ const ObunaPay = () => {
             className="card-number"
             placeholder="0000 0000 0000 0000"
             required
+             inputMode="numeric"
           />
           <MaskedInput
             mask={[/\d/, /\d/, '/', /\d/, /\d/]}
             className="card-expiry"
             placeholder="MM/YY"
             required
+             inputMode="numeric"
           />
         </form>
       </div>

@@ -169,6 +169,7 @@ const ConfirmationCode = () => {
           formatter={(str) => str.toUpperCase()}
           value={code}
           onChange={(val) => setCode(val)}
+           inputMode="numeric"
         />
       </form>
 
