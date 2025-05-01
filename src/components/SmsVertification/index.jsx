@@ -1,10 +1,79 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Input, message, notification } from 'antd';
 import '../CardData/ObunaPay.css';
 import logo from '../../assets/hisobchi.svg';
 import atmos from '../../assets/atmos.svg';
 import left from '../../assets/Left Icon.svg';
 import { NavLink } from 'react-router-dom';
+
+const CustomOTPInput = ({ length = 6, onChange }) => {
+  const inputsRef = useRef([]);
+
+  const handleChange = (e, index) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (!value) return;
+
+    e.target.value = value[0];
+    moveToNext(index);
+    triggerCombinedValue();
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+      moveToPrevious(index);
+    }
+  };
+
+  const moveToNext = (index) => {
+    if (index < length - 1) {
+      inputsRef.current[index + 1]?.focus();
+    }
+  };
+
+  const moveToPrevious = (index) => {
+    if (index > 0) {
+      inputsRef.current[index - 1]?.focus();
+    }
+  };
+
+  const triggerCombinedValue = () => {
+    const code = inputsRef.current.map((input) => input.value).join('');
+    onChange(code);
+  };
+
+  useEffect(() => {
+    inputsRef.current[0]?.focus();
+  }, []);
+
+  return (
+    <div className="custom-otp-wrapper">
+      {Array.from({ length }).map((_, index) => (
+        <input
+          key={index}
+          type="text"
+          inputMode="numeric"
+          pattern="\d*"
+          maxLength={1}
+          ref={(el) => (inputsRef.current[index] = el)}
+          onChange={(e) => {handleChange(e, index); }}
+          onKeyDown={(e) => handleKeyDown(e, index)}
+          style={{
+            width: '48px',
+            height: '48px',
+            textAlign: 'center',
+            fontSize: '16px',
+            color: '#171717',
+            borderRadius: '12px',
+            border: '0.5px solid #C5C6CC',
+            outline: 'none',
+            margin: '0 5px',
+            padding:"5px"
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 const ConfirmationCode = () => {
   const [code, setCode] = useState('');
@@ -32,7 +101,6 @@ const ConfirmationCode = () => {
 
   const resendCode = async () => {
     const MainButton = window.Telegram.WebApp.MainButton;
-
     MainButton.showProgress();
     MainButton.disable();
 
@@ -59,34 +127,32 @@ const ConfirmationCode = () => {
       } else if (data.status == 200) {
         localStorage.setItem('transaction_id', data.transaction_id);
         localStorage.setItem('phone', data.phone);
-        // navigate('/sms-verification');
       } else if (data.description == 'У партнера имеется указанная карта') {
         message.error("Bu karta oldin qo'shilgan boshqa karta kiriting!");
       }
     } catch (error) {
       console.error('Error:', error);
-      // message.error('Iltimos, boshqa karta kiriting!');
     } finally {
       MainButton.hideProgress();
       MainButton.enable();
     }
+
     setTimeLeft(120);
     setShowResend(false);
   };
 
-  const openNotificationWithIcon = (type, message) => {
+  const openNotificationWithIcon = (type, messageText) => {
     notification[type]({
       message: type,
-      description: message,
+      description: messageText,
     });
   };
 
   const handleConfirm = async (code) => {
-    const MainButton = window.Telegram.WebApp.MainButton;
 
+    const MainButton = window.Telegram.WebApp.MainButton;
     MainButton.showProgress();
     MainButton.disable();
-
     try {
       const response = await fetch(
         'https://xisobchiai2.admob.uz/api/v1/opt/' +
@@ -129,7 +195,6 @@ const ConfirmationCode = () => {
   useEffect(() => {
     if (window.Telegram) {
       const MainButton = window.Telegram.WebApp.MainButton;
-
       MainButton.setText('Tasdiqlash').show();
 
       const onClickHandler = () => {
@@ -164,14 +229,7 @@ const ConfirmationCode = () => {
       </div>
 
       <form>
-        <Input.OTP
-          className="custom-otp-input"
-          formatter={(str) => str.toUpperCase()}
-          value={code}
-          onChange={(val) => setCode(val)}
-          inputMode="numeric"
-          inputProps={{ inputMode: "numeric", pattern: "\\d*" }}
-        />
+        <CustomOTPInput onChange={setCode} />
       </form>
 
       {!showResend ? (
@@ -183,25 +241,13 @@ const ConfirmationCode = () => {
       )}
 
       <div className="images">
-        <img
-          className="logo transparent"
-          src={logo}
-          alt="logo"
-          width={80}
-          height={80}
-        />
-        <img
-          className="transparent"
-          src={atmos}
-          alt="atmos"
-          width={80}
-          height={80}
-        />
+        <img className="logo transparent" src={logo} alt="logo" width={80} height={80} />
+        <img className="transparent" src={atmos} alt="atmos" width={80} height={80} />
       </div>
 
       <p className="help transparent">
         To'lov operatori:{' '}
-        <a href="https://atmos.uz" target="_blank">
+        <a href="https://atmos.uz" target="_blank" rel="noopener noreferrer">
           Atmos.uz
         </a>{' '}
         to'lov tizimi
@@ -211,15 +257,13 @@ const ConfirmationCode = () => {
       <p>- To'lov UzCard va Humo kartalari orqali amalga oshiriladi.</p>
 
       <p className="medium">
-        - Karta ma'lumotlari Atmos to'lov tizimida xavfsiz saqlanadi. To'lovlar
-        haqqoniyligi kafolatlanadi.{' '}
-        <a href="https://atmos.uz/documents" target="_blank">
+        - Karta ma'lumotlari Atmos to'lov tizimida xavfsiz saqlanadi. To'lovlar haqqoniyligi kafolatlanadi.{' '}
+        <a href="https://atmos.uz/documents" target="_blank" rel="noopener noreferrer">
           Oferta
         </a>
       </p>
       <p>
-        - Yillik tarif harid qilinganda, karta ma'lumotlarini kiritish talab
-        etilmaydi.
+        - Yillik tarif harid qilinganda, karta ma'lumotlarini kiritish talab etilmaydi.
       </p>
     </div>
   );
