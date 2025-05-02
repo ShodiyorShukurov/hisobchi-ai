@@ -97,23 +97,27 @@ const ObunaPay = () => {
     }
   };
 
+ 
   useEffect(() => {
-    if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.MainButton.setText('Tasdiqlash').show().setAtribut;
-      window.Telegram.WebApp.MainButton.onClick(() => {
+    const MainButton = window.Telegram?.WebApp?.MainButton;
+
+    if (MainButton) {
+      const handleClick = () => {
         handleSubmit();
-      });
+      };
+
+      MainButton.setText('Tasdiqlash').show();
+      MainButton.onClick(handleClick);
+
+      return () => {
+        MainButton.offClick(handleClick);
+        MainButton.hide();
+      };
     } else {
       console.log('Telegram WebApp SDK yuklanmagan');
     }
-
-    return () => {
-      if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.MainButton.hide();
-      }
-    };
   }, []);
-
+  
   return (
     <div className="container">
       <div className="form-section">
@@ -146,14 +150,14 @@ const ObunaPay = () => {
             className="card-number"
             placeholder="0000 0000 0000 0000"
             required
-             inputMode="numeric"
+            inputMode="numeric"
           />
           <MaskedInput
             mask={[/\d/, /\d/, '/', /\d/, /\d/]}
             className="card-expiry"
             placeholder="MM/YY"
             required
-             inputMode="numeric"
+            inputMode="numeric"
           />
         </form>
       </div>
@@ -163,7 +167,9 @@ const ObunaPay = () => {
       <p className="medium">
         - Karta ma'lumotlari Atmos to'lov tizimida xavfsiz saqlanadi. To'lovlar
         haqqoniyligi kafolatlanadi.{' '}
-        <a href="https://atmos.uz/documents" target='_blank'>Oferta</a>
+        <a href="https://atmos.uz/documents" target="_blank">
+          Oferta
+        </a>
       </p>
       <p>
         - Yillik tarif harid qilinganda, karta ma'lumotlarini kiritish talab
@@ -188,7 +194,11 @@ const ObunaPay = () => {
       </div>
 
       <p className="help transparent">
-        To'lov operatori: <a href="https://atmos.uz" target='_blank'>Atmos.uz</a> to'lov tizimi
+        To'lov operatori:{' '}
+        <a href="https://atmos.uz" target="_blank">
+          Atmos.uz
+        </a>{' '}
+        to'lov tizimi
       </p>
     </div>
   );
