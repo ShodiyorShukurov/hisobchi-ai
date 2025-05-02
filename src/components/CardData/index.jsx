@@ -29,18 +29,13 @@ const ObunaPay = () => {
     const expiryValid = validateExpiryDate(expiryDate);
 
     if (!cardValid) {
-      notification.error({
-        message: 'Xatolik',
-        description: "Karta raqamini to'g'ri kiriting!",
-      });
+      message.error("Karta raqamini to'g'ri kiriting!");
     }
 
     if (!expiryValid) {
-      notification.error({
-        message: 'Xatolik',
-        description:
-          "Kartangizning amal qilish muddatini to'g'ri kiriting! (MM/YY formatida)",
-      });
+      message.error(
+        "Kartangizning amal qilish muddatini to'g'ri kiriting! (MM/YY formatida)"
+      );
     }
 
     return cardValid && expiryValid;
@@ -87,6 +82,8 @@ const ObunaPay = () => {
         navigate('/sms-verification');
       } else if (data.description == 'У партнера имеется указанная карта') {
         message.error("Bu karta oldin qo'shilgan boshqa karta kiriting!");
+      } else if (data.description == 'Неправильные параметры') {
+        message.error("Iltimos, karta ma'lumotlarini to'g'ri kiriting!");
       }
     } catch (error) {
       console.error('Error:', error);
@@ -97,7 +94,6 @@ const ObunaPay = () => {
     }
   };
 
- 
   useEffect(() => {
     const MainButton = window.Telegram?.WebApp?.MainButton;
 
@@ -117,7 +113,7 @@ const ObunaPay = () => {
       console.log('Telegram WebApp SDK yuklanmagan');
     }
   }, []);
-  
+
   return (
     <div className="container">
       <div className="form-section">
