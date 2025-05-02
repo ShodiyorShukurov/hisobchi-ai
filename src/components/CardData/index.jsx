@@ -83,7 +83,7 @@ const ObunaPay = () => {
       } else if (data.description == 'У партнера имеется указанная карта') {
         message.error("Bu karta oldin qo'shilgan boshqa karta kiriting!");
       } else if (data.description == 'Неправильные параметры') {
-        message.error("Iltimos, karta ma'lumotlarini to'g'ri kiriting!");
+        message.error("Karta ma'lumotlarini noto'g'ri!");
       }
     } catch (error) {
       console.error('Error:', error);
