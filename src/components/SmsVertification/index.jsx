@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Input, message, notification } from 'antd';
+import {  message, notification } from 'antd';
 import '../CardData/ObunaPay.css';
 import logo from '../../assets/hisobchi.svg';
 import atmos from '../../assets/atmos.svg';
@@ -22,6 +22,19 @@ const CustomOTPInput = ({ length = 6, onChange }) => {
     if (e.key === 'Backspace' && !e.target.value && index > 0) {
       moveToPrevious(index);
     }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const paste = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, length);
+    paste.split('').forEach((char, i) => {
+      if (inputsRef.current[i]) {
+        inputsRef.current[i].value = char;
+      }
+    });
+    triggerCombinedValue();
+    const nextIndex = paste.length < length ? paste.length : length - 1;
+    inputsRef.current[nextIndex]?.focus();
   };
 
   const moveToNext = (index) => {
@@ -55,8 +68,9 @@ const CustomOTPInput = ({ length = 6, onChange }) => {
           pattern="\d*"
           maxLength={1}
           ref={(el) => (inputsRef.current[index] = el)}
-          onChange={(e) => {handleChange(e, index); }}
+          onChange={(e) => handleChange(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
+          onPaste={handlePaste}
           style={{
             width: '48px',
             height: '48px',
@@ -67,13 +81,14 @@ const CustomOTPInput = ({ length = 6, onChange }) => {
             border: '0.5px solid #C5C6CC',
             outline: 'none',
             margin: '0 5px',
-            padding:"5px"
+            padding: '5px'
           }}
         />
       ))}
     </div>
   );
 };
+
 
 const ConfirmationCode = () => {
   const [code, setCode] = useState('');
