@@ -5,6 +5,7 @@ import logo from '../../assets/hisobchi.svg';
 import atmos from '../../assets/atmos.svg';
 import left from '../../assets/Left Icon.svg';
 import { NavLink } from 'react-router-dom';
+import OTPInput from 'react-otp-input';
 
 const ConfirmationCode = () => {
   const [code, setCode] = useState('');
@@ -164,12 +165,26 @@ const ConfirmationCode = () => {
       </div>
 
       <form>
-        <Input.OTP
-          className="custom-otp-input"
-          formatter={(str) => str.toUpperCase()}
+        <OTPInput
           value={code}
-          onChange={(val) => setCode(val)}
-          inputMode="numeric"
+          onChange={(val) => setCode(val)} // e emas!
+          numInputs={6}
+          inputStyle={{
+            padding: '2px 6px',
+            backgroundColor: '#FFF',
+            borderRadius: '8px',
+            width: '45px',
+            height: '48px',
+            outline: 'none',
+            fontSize: '16px',
+            fontWeight: '600',
+            lineHeight: '24px',
+          }}
+          placeholder="------"
+          renderSeparator={
+            <span style={{ width: '10px', display: 'inline-block' }}></span>
+          }
+          renderInput={(props) => <input {...props} inputMode="numeric" />}
         />
       </form>
 
