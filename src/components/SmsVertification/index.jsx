@@ -45,6 +45,7 @@ const ConfirmationCode = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'X-Client-Type': 'WEB',
           },
           body: JSON.stringify({
             card_number: localStorage.getItem('cardNumber'),
@@ -96,6 +97,7 @@ const ConfirmationCode = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'X-Client-Type': 'WEB'
           },
           body: JSON.stringify({
             code: code,

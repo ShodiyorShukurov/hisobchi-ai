@@ -64,6 +64,7 @@ const ObunaPay = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'X-Client-Type': 'WEB'
           },
           body: JSON.stringify({
             card_number: cardNumber,
