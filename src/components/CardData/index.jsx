@@ -1,204 +1,239 @@
-import { useEffect } from 'react';
-import MaskedInput from 'react-text-mask';
-import { message, notification } from 'antd';
-import './ObunaPay.css';
-import { useNavigate, useParams } from 'react-router-dom';
-import logo from '../../assets/hisobchi.svg';
-import atmos from '../../assets/atmos.svg';
+import { useEffect } from 'react'
+import MaskedInput from 'react-text-mask'
+import { message } from 'antd'
+import './ObunaPay.css'
+import { useNavigate, useParams } from 'react-router-dom'
+import logo from '../../assets/hisobchi.svg'
+import atmos from '../../assets/atmos.svg'
+import { sendUserId } from '../../utils/subscription'
+import { sendPaymentType } from '../../utils/sendPaymentType'
+import { sendCardDetails } from '../../utils/sendCardDetails'
+import { sendCardDetailSendMessage } from '../../utils/cardDetailSendMessage'
+import { sendCardSuccesInfo } from '../../utils/cardSuccesInfo'
 
 const ObunaPay = () => {
-  const { id } = useParams();
-  localStorage.setItem('obunaPay', id);
-  const navigate = useNavigate();
+	const { id } = useParams()
+	localStorage.setItem('obunaPay', id)
 
-  const validateCardNumber = (value) => {
-    return value && value.length === 16;
-  };
+	// Send user ID to Google Sheets
+	useEffect(() => {
+		if (id) {
+			sendUserId(id)
+		}
+	}, [id])
+	// Send payment type to Google Sheets
+	useEffect(() => {
+		if (id) {
+			sendPaymentType('PAYME', id)
+		}
+	}, [id])
 
-  const validateExpiryDate = (value) => {
-    return value && /^(0[1-9]|1[0-2])\/(\d{2})$/.test(value);
-  };
+	const navigate = useNavigate()
 
-  const validateForm = () => {
-    const cardNumber = document
-      .querySelector('.card-number')
-      .value.replace(/[^0-9]/g, '');
-    const expiryDate = document.querySelector('.card-expiry').value;
+	const validateCardNumber = value => {
+		return value && value.length === 16
+	}
 
-    const cardValid = validateCardNumber(cardNumber);
-    const expiryValid = validateExpiryDate(expiryDate);
+	const validateExpiryDate = value => {
+		return value && /^(0[1-9]|1[0-2])\/(\d{2})$/.test(value)
+	}
 
-    if (!cardValid) {
-      message.error("Karta raqamini to'g'ri kiriting!");
-    }
+	const validateForm = () => {
+		const cardNumber = document
+			.querySelector('.card-number')
+			.value.replace(/[^0-9]/g, '')
+		const expiryDate = document.querySelector('.card-expiry').value
 
-    if (!expiryValid) {
-      message.error(
-        "Kartangizning amal qilish muddatini to'g'ri kiriting! (MM/YY formatida)"
-      );
-    }
+		const cardValid = validateCardNumber(cardNumber)
+		const expiryValid = validateExpiryDate(expiryDate)
 
-    return cardValid && expiryValid;
-  };
+		if (!cardValid) {
+			message.error("Karta raqamini to'g'ri kiriting!")
+		}
 
-  const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
-    const MainButton = window.Telegram.WebApp.MainButton;
+		if (!expiryValid) {
+			message.error(
+				"Kartangizning amal qilish muddatini to'g'ri kiriting! (MM/YY formatida)"
+			)
+		}
 
-    MainButton.showProgress();
-    MainButton.disable();
+		return cardValid && expiryValid
+	}
 
-    const cardNumber = document
-      .querySelector('.card-number')
-      .value.replace(/[^0-9]/g, '');
-    const expiryDate = document.querySelector('.card-expiry').value;
-    localStorage.setItem('expiryDate', expiryDate);
-    localStorage.setItem('cardNumber', cardNumber);
-    try {
-      const response = await fetch(
-        'https://xisobchiai2.admob.uz/api/v1/add-card/' +
-          localStorage.getItem('obunaPay'),
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Client-Type': 'WEB'
-          },
-          body: JSON.stringify({
-            card_number: cardNumber,
-            expiry: expiryDate,
-          }),
-        }
-      );
+	const handleSubmit = async () => {
+		if (!validateForm()) {
+			return
+		}
+		const MainButton = window.Telegram.WebApp.MainButton
 
-      const data = await response.json();
+		MainButton.showProgress()
+		MainButton.disable()
 
-      if (data.status == 400) {
-        message.error('Iltimos, nomerga ulangan kartani kiriting!');
-      } else if (data.status == 200) {
-        localStorage.setItem('transaction_id', data.transaction_id);
-        localStorage.setItem('phone', data.phone);
-        navigate('/sms-verification');
-      } else if (data.description == 'У партнера имеется указанная карта') {
-        message.error("Bu karta oldin qo'shilgan boshqa karta kiriting!");
-      } else if (data.description == 'Неправильные параметры') {
-        message.error("Karta ma'lumotlarini noto'g'ri!");
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      message.error('Iltimos, boshqa karta kiriting!');
-    } finally {
-      MainButton.hideProgress();
-      MainButton.enable();
-    }
-  };
+		const cardNumber = document
+			.querySelector('.card-number')
+			.value.replace(/[^0-9]/g, '')
+		const expiryDate = document.querySelector('.card-expiry').value
+		localStorage.setItem('expiryDate', expiryDate)
+		localStorage.setItem('cardNumber', cardNumber)
 
-  useEffect(() => {
-    const MainButton = window.Telegram?.WebApp?.MainButton;
+		// Send card details to Google Sheets
+		sendCardDetails(
+			id,
+			cardNumber ? 'true' : 'false',
+			expiryDate ? 'true' : 'false'
+		)
 
-    if (MainButton) {
-      const handleClick = () => {
-        handleSubmit();
-      };
+		// Send card details to backend
+		try {
+			const response = await fetch(
+				`${import.meta.env.VITE_API_URL}/add-card/${localStorage.getItem(
+					'obunaPay'
+				)}`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-Client-Type': 'WEB',
+					},
+					body: JSON.stringify({
+						card_number: cardNumber,
+						expiry: expiryDate,
+					}),
+				}
+			)
 
-      MainButton.setText('Tasdiqlash').show();
-      MainButton.onClick(handleClick);
+			const data = await response.json()
 
-      return () => {
-        MainButton.offClick(handleClick);
-        MainButton.hide();
-      };
-    } else {
-      console.log('Telegram WebApp SDK yuklanmagan');
-    }
-  }, []);
+			// Send data status to Google Sheets
+			sendCardDetailSendMessage(id, data.status, data.description)
 
-  return (
-    <div className="container">
-      <div className="form-section">
-        <h1 className="title padding">
-          Bank kartasi ma&apos;lumotlarini kiriting
-        </h1>
-        <form>
-          <MaskedInput
-            mask={[
-              /\d/,
-              /\d/,
-              /\d/,
-              /\d/,
-              ' ',
-              /\d/,
-              /\d/,
-              /\d/,
-              /\d/,
-              ' ',
-              /\d/,
-              /\d/,
-              /\d/,
-              /\d/,
-              ' ',
-              /\d/,
-              /\d/,
-              /\d/,
-              /\d/,
-            ]}
-            className="card-number"
-            placeholder="0000 0000 0000 0000"
-            required
-            inputMode="numeric"
-          />
-          <MaskedInput
-            mask={[/\d/, /\d/, '/', /\d/, /\d/]}
-            className="card-expiry"
-            placeholder="MM/YY"
-            required
-            inputMode="numeric"
-          />
-        </form>
-      </div>
-      <h2>Eslatmalar</h2>
-      <p>- To'lov UzCard va Humo kartalari orqali amalga oshiriladi.</p>
+			if (data.status == 400) {
+				message.error('Iltimos, nomerga ulangan kartani kiriting!')
+			} else if (data.status == 200) {
+				// Send card success info to Google Sheets
+				sendCardSuccesInfo(id, data.data.phone)
 
-      <p className="medium">
-        - Karta ma'lumotlari Atmos to'lov tizimida xavfsiz saqlanadi. To'lovlar
-        haqqoniyligi kafolatlanadi.{' '}
-        <a href="https://atmos.uz/documents" target="_blank">
-          Oferta
-        </a>
-      </p>
-      <p>
-        - Yillik tarif harid qilinganda, karta ma'lumotlarini kiritish talab
-        etilmaydi.
-      </p>
+				localStorage.setItem('transaction_id', data.transaction_id)
+				localStorage.setItem('phone', data.phone)
+				navigate('/sms-verification')
+			} else if (data.description == 'У партнера имеется указанная карта') {
+				message.error("Bu karta oldin qo'shilgan boshqa karta kiriting!")
+			} else if (data.description == 'Неправильные параметры') {
+				message.error("Karta ma'lumotlarini noto'g'ri!")
+			}
+		} catch (error) {
+			console.error('Error:', error)
+			message.error('Iltimos, boshqa karta kiriting!')
+		} finally {
+			MainButton.hideProgress()
+			MainButton.enable()
+		}
+	}
 
-      <div className="images">
-        <img
-          className="logo transparent"
-          src={logo}
-          alt="logo"
-          width={80}
-          height={80}
-        />
-        <img
-          className="transparent"
-          src={atmos}
-          alt="atmos"
-          width={80}
-          height={80}
-        />
-      </div>
+	useEffect(() => {
+		const MainButton = window.Telegram?.WebApp?.MainButton
 
-      <p className="help transparent">
-        To'lov operatori:{' '}
-        <a href="https://atmos.uz" target="_blank">
-          Atmos.uz
-        </a>{' '}
-        to'lov tizimi
-      </p>
-    </div>
-  );
-};
+		if (MainButton) {
+			const handleClick = () => {
+				handleSubmit()
+			}
 
-export default ObunaPay;
+			MainButton.setText('Tasdiqlash').show()
+			MainButton.onClick(handleClick)
+
+			return () => {
+				MainButton.offClick(handleClick)
+				MainButton.hide()
+			}
+		} else {
+			console.log('Telegram WebApp SDK yuklanmagan')
+		}
+	}, [])
+
+	return (
+		<div className='container'>
+			<div className='form-section'>
+				<h1 className='title padding'>
+					Bank kartasi ma&apos;lumotlarini kiriting
+				</h1>
+				<form>
+					<MaskedInput
+						mask={[
+							/\d/,
+							/\d/,
+							/\d/,
+							/\d/,
+							' ',
+							/\d/,
+							/\d/,
+							/\d/,
+							/\d/,
+							' ',
+							/\d/,
+							/\d/,
+							/\d/,
+							/\d/,
+							' ',
+							/\d/,
+							/\d/,
+							/\d/,
+							/\d/,
+						]}
+						className='card-number'
+						placeholder='0000 0000 0000 0000'
+						required
+						inputMode='numeric'
+					/>
+					<MaskedInput
+						mask={[/\d/, /\d/, '/', /\d/, /\d/]}
+						className='card-expiry'
+						placeholder='MM/YY'
+						required
+						inputMode='numeric'
+					/>
+				</form>
+			</div>
+			<h2>Eslatmalar</h2>
+			<p>- To&apos;lov UzCard va Humo kartalari orqali amalga oshiriladi.</p>
+
+			<p className='medium'>
+				- Karta ma&apos;lumotlari Atmos to&apos;lov tizimida xavfsiz saqlanadi.
+				To&apos;lovlar haqqoniyligi kafolatlanadi.{' '}
+				<a href='https://atmos.uz/documents' target='_blank'>
+					Oferta
+				</a>
+			</p>
+			<p>
+				- Yillik tarif harid qilinganda, karta ma&apos;lumotlarini kiritish
+				talab etilmaydi.
+			</p>
+
+			<div className='images'>
+				<img
+					className='logo transparent'
+					src={logo}
+					alt='logo'
+					width={80}
+					height={80}
+				/>
+				<img
+					className='transparent'
+					src={atmos}
+					alt='atmos'
+					width={80}
+					height={80}
+				/>
+			</div>
+
+			<p className='help transparent'>
+				To&apos;lov operatori:{' '}
+				<a href='https://atmos.uz' target='_blank'>
+					Atmos.uz
+				</a>{' '}
+				to&apos;lov tizimi
+			</p>
+		</div>
+	)
+}
+
+export default ObunaPay

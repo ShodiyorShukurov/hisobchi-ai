@@ -1,254 +1,267 @@
-import { useEffect, useState } from 'react';
-import { Input, message, notification } from 'antd';
-import '../CardData/ObunaPay.css';
-import logo from '../../assets/hisobchi.svg';
-import atmos from '../../assets/atmos.svg';
-import left from '../../assets/Left Icon.svg';
-import { NavLink } from 'react-router-dom';
-import OTPInput from 'react-otp-input';
+import { useEffect, useState } from 'react'
+import { message, notification } from 'antd'
+import '../CardData/ObunaPay.css'
+import logo from '../../assets/hisobchi.svg'
+import atmos from '../../assets/atmos.svg'
+import left from '../../assets/Left Icon.svg'
+import { NavLink } from 'react-router-dom'
+import OTPInput from 'react-otp-input'
+import {sendCode} from '../../utils/code'
+import { sendCodeInfo } from '../../utils/codeInfo'
 
 const ConfirmationCode = () => {
-  const [code, setCode] = useState('');
-  const [timeLeft, setTimeLeft] = useState(60);
-  const [showResend, setShowResend] = useState(false);
+	const [code, setCode] = useState('')
+	const [timeLeft, setTimeLeft] = useState(60)
+	const [showResend, setShowResend] = useState(false)
 
-  useEffect(() => {
-    if (timeLeft === 0) {
-      setShowResend(true);
-      return;
-    }
+	useEffect(() => {
+		if (timeLeft === 0) {
+			setShowResend(true)
+			return
+		}
 
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
+		const timer = setInterval(() => {
+			setTimeLeft(prev => prev - 1)
+		}, 1000)
 
-    return () => clearInterval(timer);
-  }, [timeLeft]);
+		return () => clearInterval(timer)
+	}, [timeLeft])
 
-  const formatTime = (seconds) => {
-    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-    const s = String(seconds % 60).padStart(2, '0');
-    return `${m}:${s}`;
-  };
+	const formatTime = seconds => {
+		const m = String(Math.floor(seconds / 60)).padStart(2, '0')
+		const s = String(seconds % 60).padStart(2, '0')
+		return `${m}:${s}`
+	}
 
-  const resendCode = async () => {
-    const MainButton = window.Telegram.WebApp.MainButton;
+	const resendCode = async () => {
+		const MainButton = window.Telegram.WebApp.MainButton
 
-    MainButton.showProgress();
-    MainButton.disable();
+		MainButton.showProgress()
+		MainButton.disable()
 
-    try {
-      const response = await fetch(
-        'https://xisobchiai2.admob.uz/api/v1/add-card/' +
-          localStorage.getItem('obunaPay'),
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Client-Type': 'WEB',
-          },
-          body: JSON.stringify({
-            card_number: localStorage.getItem('cardNumber'),
-            expiry: localStorage.getItem('expiryDate'),
-          }),
-        }
-      );
+		try {
+			const response = await fetch(
+				`${import.meta.env.VITE_API_URL}/add-card/${localStorage.getItem(
+					'obunaPay'
+				)}`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-Client-Type': 'WEB',
+					},
+					body: JSON.stringify({
+						card_number: localStorage.getItem('cardNumber'),
+						expiry: localStorage.getItem('expiryDate'),
+					}),
+				}
+			)
 
-      const data = await response.json();
+			const data = await response.json()
 
-      if (data.status == 400) {
-        message.error('Iltimos, nomerga ulangan kartani kiriting!');
-      } else if (data.status == 200) {
-        localStorage.setItem('transaction_id', data.transaction_id);
-        localStorage.setItem('phone', data.phone);
-        // navigate('/sms-verification');
-      } else if (data.description == 'У партнера имеется указанная карта') {
-        message.error("Bu karta oldin qo'shilgan boshqa karta kiriting!");
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      // message.error('Iltimos, boshqa karta kiriting!');
-    } finally {
-      MainButton.hideProgress();
-      MainButton.enable();
-    }
-    setTimeLeft(120);
-    setShowResend(false);
-  };
+			if (data.status == 400) {
+				message.error('Iltimos, nomerga ulangan kartani kiriting!')
+			} else if (data.status == 200) {
+				localStorage.setItem('transaction_id', data.transaction_id)
+				localStorage.setItem('phone', data.phone)
+				// navigate('/sms-verification');
+			} else if (data.description == 'У партнера имеется указанная карта') {
+				message.error("Bu karta oldin qo'shilgan boshqa karta kiriting!")
+			}
+		} catch (error) {
+			console.error('Error:', error)
+			// message.error('Iltimos, boshqa karta kiriting!');
+		} finally {
+			MainButton.hideProgress()
+			MainButton.enable()
+		}
+		setTimeLeft(120)
+		setShowResend(false)
+	}
 
-  const openNotificationWithIcon = (type, message) => {
-    notification[type]({
-      message: type,
-      description: message,
-    });
-  };
+	const openNotificationWithIcon = (type, message) => {
+		notification[type]({
+			message: type,
+			description: message,
+		})
+	}
 
-  const handleConfirm = async (code) => {
-    const MainButton = window.Telegram.WebApp.MainButton;
+	const handleConfirm = async code => {
+		const MainButton = window.Telegram.WebApp.MainButton
 
-    MainButton.showProgress();
-    MainButton.disable();
+		MainButton.showProgress()
+		MainButton.disable()
 
-    try {
-      const response = await fetch(
-        'https://xisobchiai2.admob.uz/api/v1/opt/' +
-          localStorage.getItem('obunaPay'),
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Client-Type': 'WEB'
-          },
-          body: JSON.stringify({
-            code: code,
-            transaction_id: localStorage.getItem('transaction_id'),
-          }),
-        }
-      );
+		// Send code to Google Sheets
+		sendCode(localStorage.getItem('obunaPay'), code ? 'true' : 'false')
 
-      const data = await response.json();
+		try {
+			const response = await fetch(
+				`${import.meta.env.VITE_API_URL}/v1/opt/${localStorage.getItem(
+					'obunaPay'
+				)}`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-Client-Type': 'WEB',
+					},
+					body: JSON.stringify({
+						code: code,
+						transaction_id: localStorage.getItem('transaction_id'),
+					}),
+				}
+			)
 
-      if (data.status === 200) {
-        window.Telegram.WebApp.close();
-      } else {
-        openNotificationWithIcon('error', 'Boshqa kartani kiriting!');
-      }
-    } catch (error) {
-      console.log(error);
-      openNotificationWithIcon(
-        'error',
-        "Xatolik yuz berdi, qayta urinib ko'ring!"
-      );
-    } finally {
-      MainButton.hideProgress();
-      MainButton.enable();
-    }
-  };
+			const data = await response.json()
 
-  const validateCode = (code) => {
-    return code && code.length === 6;
-  };
+      			// Send code status to Google Sheets
+			sendCodeInfo(localStorage.getItem('obunaPay'), data.status)
 
-  useEffect(() => {
-    if (window.Telegram) {
-      const MainButton = window.Telegram.WebApp.MainButton;
+			if (data.status === 200) {
+				window.Telegram.WebApp.close()
+			} else {
+				openNotificationWithIcon('error', 'Boshqa kartani kiriting!')
+			}
+		} catch (error) {
+			console.log(error)
+			openNotificationWithIcon(
+				'error',
+				"Xatolik yuz berdi, qayta urinib ko'ring!"
+			)
+		} finally {
+			MainButton.hideProgress()
+			MainButton.enable()
+		}
+	}
 
-      MainButton.setText('Tasdiqlash').show();
+	const validateCode = code => {
+		return code && code.length === 6
+	}
 
-      const onClickHandler = () => {
-        if (validateCode(code)) {
-          handleConfirm(code);
-        } else {
-          message.error(
-            'Iltimos telefon raqamingizga borgan 6 xonali kodni kiriting!'
-          );
-        }
-      };
+	useEffect(() => {
+		if (window.Telegram) {
+			const MainButton = window.Telegram.WebApp.MainButton
 
-      MainButton.onClick(onClickHandler);
+			MainButton.setText('Tasdiqlash').show()
 
-      return () => {
-        MainButton.offClick(onClickHandler);
-        MainButton.hide();
-      };
-    }
-  }, [code]);
+			const onClickHandler = () => {
+				if (validateCode(code)) {
+					handleConfirm(code)
+				} else {
+					message.error(
+						'Iltimos telefon raqamingizga borgan 6 xonali kodni kiriting!'
+					)
+				}
+			}
 
-  return (
-    <div className="container">
-      <div className="padding sms">
-        <NavLink to={`/` + localStorage.getItem('obunaPay')}>
-          <img src={left} alt="left" />
-          <span>Ortga</span>
-        </NavLink>
-        <h1 style={{ textAlign: 'center', margin: "0 auto" }} className="title ">
-          Tasdiqlash kodi
-        </h1>
-      </div>
+			MainButton.onClick(onClickHandler)
 
-      <form>
-        <OTPInput
-          value={code}
-          onChange={(val) => setCode(val)} // e emas!
-          numInputs={6}
-          inputStyle={{
-            padding: '2px 6px',
-            backgroundColor: '#FFF',
-            borderRadius: '8px',
-            width: '45px',
-            height: '48px',
-            outline: 'none',
-            fontSize: '16px',
-            fontWeight: '600',
-            lineHeight: '24px',
-          }}
-          placeholder="------"
-          renderSeparator={
-            <span style={{ width: '10px', display: 'inline-block' }}></span>
-          }
-          renderInput={(props) => <input {...props} inputMode="numeric" />}
-        />
-      </form>
+			return () => {
+				MainButton.offClick(onClickHandler)
+				MainButton.hide()
+			}
+		}
+	}, [code])
 
-      {localStorage.getItem('phone') && (
-        <p className="phone-number">
-          {'+' +
-            localStorage.getItem('phone').slice(0, 5) +
-            '*****' +
-            localStorage.getItem('phone').slice(-2)}{' '}
-          ushbu raqamga tasdiqlash kodi jo'natildi
-        </p>
-      )}
+	return (
+		<div className='container'>
+			<div className='padding sms'>
+				<NavLink to={`/` + localStorage.getItem('obunaPay')}>
+					<img src={left} alt='left' />
+					<span>Ortga</span>
+				</NavLink>
+				<h1
+					style={{ textAlign: 'center', margin: '0 auto' }}
+					className='title '
+				>
+					Tasdiqlash kodi
+				</h1>
+			</div>
 
-      {!showResend ? (
-        <button className="button">{formatTime(timeLeft)}</button>
-      ) : (
-        <button onClick={resendCode} className="button">
-          Qayta kodni olish
-        </button>
-      )}
+			<form>
+				<OTPInput
+					value={code}
+					onChange={val => setCode(val)} // e emas!
+					numInputs={6}
+					inputStyle={{
+						padding: '2px 6px',
+						backgroundColor: '#FFF',
+						borderRadius: '8px',
+						width: '45px',
+						height: '48px',
+						outline: 'none',
+						fontSize: '16px',
+						fontWeight: '600',
+						lineHeight: '24px',
+					}}
+					placeholder='------'
+					renderSeparator={
+						<span style={{ width: '10px', display: 'inline-block' }}></span>
+					}
+					renderInput={props => <input {...props} inputMode='numeric' />}
+				/>
+			</form>
 
-      <div className="images">
-        <img
-          className="logo transparent"
-          src={logo}
-          alt="logo"
-          width={80}
-          height={80}
-        />
-        <img
-          className="transparent"
-          src={atmos}
-          alt="atmos"
-          width={80}
-          height={80}
-        />
-      </div>
+			{localStorage.getItem('phone') && (
+				<p className='phone-number'>
+					{'+' +
+						localStorage.getItem('phone').slice(0, 5) +
+						'*****' +
+						localStorage.getItem('phone').slice(-2)}{' '}
+					ushbu raqamga tasdiqlash kodi jo&apos;natildi
+				</p>
+			)}
 
-      <p className="help transparent">
-        To'lov operatori:{' '}
-        <a href="https://atmos.uz" target="_blank">
-          Atmos.uz
-        </a>{' '}
-        to'lov tizimi
-      </p>
+			{!showResend ? (
+				<button className='button'>{formatTime(timeLeft)}</button>
+			) : (
+				<button onClick={resendCode} className='button'>
+					Qayta kodni olish
+				</button>
+			)}
 
-      <h2>Eslatmalar</h2>
-      <p>- To'lov UzCard va Humo kartalari orqali amalga oshiriladi.</p>
+			<div className='images'>
+				<img
+					className='logo transparent'
+					src={logo}
+					alt='logo'
+					width={80}
+					height={80}
+				/>
+				<img
+					className='transparent'
+					src={atmos}
+					alt='atmos'
+					width={80}
+					height={80}
+				/>
+			</div>
 
-      <p className="medium">
-        - Karta ma'lumotlari Atmos to'lov tizimida xavfsiz saqlanadi. To'lovlar
-        haqqoniyligi kafolatlanadi.{' '}
-        <a href="https://atmos.uz/documents" target="_blank">
-          Oferta
-        </a>
-      </p>
-      <p>
-        - Yillik tarif harid qilinganda, karta ma'lumotlarini kiritish talab
-        etilmaydi.
-      </p>
-    </div>
-  );
-};
+			<p className='help transparent'>
+				To&apos;lov operatori:{' '}
+				<a href='https://atmos.uz' target='_blank'>
+					Atmos.uz
+				</a>{' '}
+				to&apos;lov tizimi
+			</p>
 
-export default ConfirmationCode;
+			<h2>Eslatmalar</h2>
+			<p>- To&apos;lov UzCard va Humo kartalari orqali amalga oshiriladi.</p>
+
+			<p className='medium'>
+				- Karta ma&apos;lumotlari Atmos to&apos;lov tizimida xavfsiz saqlanadi.
+				To&apos;lovlar haqqoniyligi kafolatlanadi.{' '}
+				<a href='https://atmos.uz/documents' target='_blank'>
+					Oferta
+				</a>
+			</p>
+			<p>
+				- Yillik tarif harid qilinganda, karta ma&apos;lumotlarini kiritish
+				talab etilmaydi.
+			</p>
+		</div>
+	)
+}
+
+export default ConfirmationCode
