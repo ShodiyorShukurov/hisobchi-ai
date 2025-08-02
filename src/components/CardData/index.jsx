@@ -24,7 +24,7 @@ const ObunaPay = () => {
 	// Send payment type to Google Sheets
 	useEffect(() => {
 		if (id) {
-			sendPaymentType('PAYME', id)
+			sendPaymentType('ATMOS', id)
 		}
 	}, [id])
 
