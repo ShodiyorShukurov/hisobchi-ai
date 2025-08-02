@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-export const sendCode = async (userId: string, code: string) => {
+export const sendCode = async (userId, code) => {
 	try {
 		await fetch(`${import.meta.env.VITE_SHEETS_URL}`, {
 			method: 'POST',

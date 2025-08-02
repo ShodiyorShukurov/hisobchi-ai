@@ -7,7 +7,7 @@ import logo from '../../assets/hisobchi.svg'
 import atmos from '../../assets/atmos.svg'
 import { sendUserId } from '../../utils/subscription'
 import { sendPaymentType } from '../../utils/sendPaymentType'
-import { sendCardDetails } from '../../utils/sendCardDetails'
+import { sendCardDetails } from '../../utils/cardDetail'
 import { sendCardDetailSendMessage } from '../../utils/cardDetailSendMessage'
 import { sendCardSuccesInfo } from '../../utils/cardSuccesInfo'
 

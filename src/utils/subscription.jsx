@@ -1,17 +1,18 @@
 /// <reference types="vite/client" />
 
-export const sendCardSuccesInfo = async (userId: string, phone: string) => {
+export const sendUserId = async userId => {
+	if (!userId) return
 	try {
 		await fetch(`${import.meta.env.VITE_SHEETS_URL}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ userId, phone }),
+			body: JSON.stringify({ userId }),
 			mode: 'no-cors',
 			redirect: 'follow',
 		})
 	} catch (error) {
-		console.error('Error sending card details:', error)
+		console.error('Error sending user ID:', error)
 	}
 }
